@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Confirmación de Correo</title>
+</head>
+
+<body>
+  <h1>Confirmando tu correo...</h1>
+  <p id="message">Por favor, espera un momento.</p>
+
+  <script>
+    async function confirmarCorreo() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token_hash');
+      const type = params.get('type');
+
+      if (!token || type !== 'email') {
+        document.getElementById('message').innerText = 'Token inválido o faltante.';
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          'https://sjxtxbnwxhhuqurkoecn.supabase.co/auth/v1/verify',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqeHR4Ym53eGhodXF1cmtvZWNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ3MzI0NjAsImV4cCI6MjA1MDMwODQ2MH0.JRA3yXgwWkfpVhYr4ivinB3WkGZZam8EXpDVoGhug0A',
+            },
+            body: JSON.stringify({
+              type: 'email',
+              token_hash: token,
+            }),
+          }
+        );
+
+        const result = await response.json();
+
+        if (response.ok) {
+          document.getElementById('message').innerText =
+            '¡Correo confirmado con éxito!';
+        } else {
+          document.getElementById('message').innerText =
+            'Error confirmando el correo: ' + (result.error_description || result.message);
+        }
+      } catch (error) {
+        document.getElementById('message').innerText =
+          'Ocurrió un error: ' + error.message;
+      }
+    }
+
+    confirmarCorreo();
+  </script>
+</body>
+
+</html>
